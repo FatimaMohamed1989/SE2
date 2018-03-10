@@ -1,0 +1,11 @@
+I intend to make this algorithm as simple as possible.
+To me this means that I will have just one single file as 
+I had too many issues with imports in the past.
+I will then decide to create a skeleton of scripts that will give me a picture
+of how the code should look.
+I will then section the code into 3 classes (Instructions, FileParser, and Light_tester),
+these 3 classes will each have their own functions, Once the skeleton is built I will then play around
+with the order of things in order to get it all to work together correctly.
+I will first hard code instructions on the grid size/inputs in order to test whether it is working correctly, I will then
+remove these hard-codes and get my parser to work (then I will use multiple for loop to iterate over this file, I will slice
+the lines and extract the appropriate data in order to get it to work correctly).

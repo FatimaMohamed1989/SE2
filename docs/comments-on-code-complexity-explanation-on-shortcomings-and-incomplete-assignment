@@ -1,0 +1,7 @@
+My code turned out to be very complex, it took quite some time to fix all the errors that occurred
+due to my lack of knowledge of python libraries as well as the difficulties I had with imports
+I was able to get my script working by debugging each line that was causing trouble and then researching
+errors as they appeared. In the end I feel that had my classes been in separate files it would have been easier to debug.
+
+I was unable to get my program to work on my EC2 due to time constraints and software issues and instead of creating
+tests i used the eclipse debug feature in order to check for errors. 

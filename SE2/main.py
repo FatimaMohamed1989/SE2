@@ -3,6 +3,7 @@ Created on 10 Mar 2018
 
 @author: user
 '''
+import urllib3
 class Instruct(object):
     '''
     classdocs
@@ -28,37 +29,71 @@ class FileParser(object):
     classdocs
     '''
     FileName="";
+    N=0;
+
 
     def __init__(self, filename):
-        FileName=filename;
+        self.FileName=filename;
         pass; 
     
     def parse_file(self):
         instructions=[];
-        instructions.append(Instruct("turn on",0,0,5,5));# the count should be 36
-        instructions.append(Instruct("turn off",1,1,4,4));# the count should be 36-4=32
-        instructions.append(Instruct("switch",1,0,2,0));# the count should be 32 - 2 = 30
+        http = urllib3.PoolManager()
+        response = http.request('GET', self.FileName)
+        theData = response.data.decode('utf-8');
+        thelist = theData.split('\n');
+        numOfLines=0;
+        for line in thelist:
+            if numOfLines == 0:
+                self.N = int(line.strip());
+            else:
+                if line[:7]=="turn on":
+                    instructions.append(self.parse_line(line[7:],"turn on"));
+                elif line[:8]=="turn off":
+                    instructions.append(self.parse_line(line[8:],"turn off"));
+                elif line[:6]=="switch":
+                    instructions.append(self.parse_line(line[6:],"switch"));
+                else:
+                    pass;
+            numOfLines=numOfLines+1;
         return instructions;
+    def parse_line(self, line,code):
+        n = line.find("through");
+        theInstruct=Instruct("",0,0,0,0);
+        theInstruct.Code=code;
+        start="";
+        finish = "";
+        if (n != -1):
+            start = line[:n];
+            finish = line[n+7:];
+            startArray =start.strip().split(",");
+            finishArray =finish.strip().split(",");
+            theInstruct.X1=startArray[0].strip();
+            theInstruct.Y1=startArray[1].strip();
+            theInstruct.X2=finishArray[0].strip();
+            theInstruct.Y2=finishArray[1].strip();
+        #print(theInstruct.Code + " " +  theInstruct.X1 + "/" +  theInstruct.Y1 + " ooooo "  + " " +  theInstruct.X2 + "/" + theInstruct.Y2);
+        return theInstruct;
         
 class Light_Tester(object):
     lights=None;
-    GridSize=0;
     def __init__(self, n):
         self.GridSize=n;
         self.lights = [[False]*self.GridSize for _ in range(self.GridSize)]
         
     def apply(self, cmd):
         if cmd.Code=="turn on":
-            for i in range(cmd.X1, cmd.X2+1):
-                for j in range(cmd.Y1, cmd.Y2+1):
+            for i in range(int(cmd.X1), int(cmd.X2)+1):
+                for j in range(int(cmd.Y1), int(cmd.Y2)+1):
                     self.lights[i][j] = True
         elif cmd.Code=="turn off":
-            for i in range(cmd.X1, cmd.X2+1):
-                for j in range(cmd.Y1, cmd.Y2+1):
+            for i in range(int(cmd.X1), int(cmd.X2)+1):
+                for j in range(int(cmd.Y1), int(cmd.Y2)+1):
                     self.lights[i][j] = False
         elif cmd.Code=="switch":
-            for i in range(cmd.X1, cmd.X2+1):
-                for j in range(cmd.Y1, cmd.Y2+1):
+            #print(cmd.X1 + " " + cmd.X2 + " " + cmd.Y1 + " " + cmd.Y2)
+            for i in range(int(cmd.X1), int(cmd.X2)+1):
+                for j in range(int(cmd.Y1), int(cmd.Y2)+1):
                     self.lights[i][j] = not self.lights[i][j]
             
              
@@ -71,15 +106,15 @@ class Light_Tester(object):
         return num;
 
  
-def main(filename, N):
+def main(filename):
+    theParser= FileParser(filename);
     
-    theLights=Light_Tester(N);
- 
-    theParser= FileParser("");
     instructions = theParser.parse_file();
-    
+
+    theLights=Light_Tester(theParser.N);
+ 
     for cmd in instructions:
         theLights.apply(cmd);
-        print(theLights.count())
+    print(theLights.count())
 if __name__ == '__main__':
-    main("The filename",6);
+    main();
